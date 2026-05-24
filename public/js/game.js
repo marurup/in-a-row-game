@@ -18,6 +18,7 @@ const State = {
   winner: null,     // null | 0 | 1 | 'draw'
   winningCells: [],
   lastMove: null,
+  aiDifficulty: 'medium', // 'easy' | 'medium' | 'hard' | 'expert'
   online: {
     peer: null,
     conn: null,
@@ -66,32 +67,113 @@ function getValidCols(board) {
 
 // ── AI ────────────────────────────────────────────────────────
 const AI = {
-  getMove(board, aiIdx) {
+  getMove(board, aiIdx, difficulty) {
+    switch (difficulty) {
+      case 'easy':   return this._random(board);
+      case 'hard':   return this._minimaxBest(board, aiIdx, 5);
+      case 'expert': return this._minimaxBest(board, aiIdx, 7);
+      default:       return this._medium(board, aiIdx);
+    }
+  },
+
+  _random(board) {
+    const valid = getValidCols(board);
+    return valid[Math.floor(Math.random() * valid.length)];
+  },
+
+  _medium(board, aiIdx) {
     const oppIdx = 1 - aiIdx;
     const valid = getValidCols(board);
-
-    // Win immediately if possible
     for (const col of valid) {
       const row = getLowestEmptyRow(board, col);
       board[row][col] = aiIdx;
-      const wins = checkWin(board, row, col, aiIdx);
+      if (checkWin(board, row, col, aiIdx)) { board[row][col] = null; return col; }
       board[row][col] = null;
-      if (wins) return col;
     }
-
-    // Block opponent's winning move
     for (const col of valid) {
       const row = getLowestEmptyRow(board, col);
       board[row][col] = oppIdx;
-      const wins = checkWin(board, row, col, oppIdx);
+      if (checkWin(board, row, col, oppIdx)) { board[row][col] = null; return col; }
       board[row][col] = null;
-      if (wins) return col;
     }
-
-    // Prefer center columns
     return [3, 2, 4, 1, 5, 0, 6].find(c => valid.includes(c)) ?? valid[0];
+  },
+
+  _minimaxBest(board, aiIdx, depth) {
+    const valid = getValidCols(board);
+    const ordered = [3, 2, 4, 1, 5, 0, 6].filter(c => valid.includes(c));
+    let bestScore = -Infinity;
+    let bestCol = ordered[0];
+    for (const col of ordered) {
+      const row = getLowestEmptyRow(board, col);
+      board[row][col] = aiIdx;
+      const won = !!checkWin(board, row, col, aiIdx);
+      const s = won ? 100000 + depth : minimaxScore(board, depth - 1, -Infinity, Infinity, false, aiIdx);
+      board[row][col] = null;
+      if (s > bestScore) { bestScore = s; bestCol = col; }
+    }
+    return bestCol;
   }
 };
+
+function minimaxScore(board, depth, alpha, beta, maximizing, aiIdx) {
+  const valid = getValidCols(board);
+  if (depth === 0 || valid.length === 0) {
+    return valid.length === 0 ? 0 : scoreBoard(board, aiIdx);
+  }
+  const me = maximizing ? aiIdx : 1 - aiIdx;
+  const ordered = [3, 2, 4, 1, 5, 0, 6].filter(c => valid.includes(c));
+  let best = maximizing ? -Infinity : Infinity;
+  for (const col of ordered) {
+    const row = getLowestEmptyRow(board, col);
+    board[row][col] = me;
+    const won = !!checkWin(board, row, col, me);
+    const s = won
+      ? (maximizing ? 100000 + depth : -(100000 + depth))
+      : minimaxScore(board, depth - 1, alpha, beta, !maximizing, aiIdx);
+    board[row][col] = null;
+    if (maximizing) { best = Math.max(best, s); alpha = Math.max(alpha, s); }
+    else            { best = Math.min(best, s); beta  = Math.min(beta,  s); }
+    if (beta <= alpha) break;
+  }
+  return best;
+}
+
+function scoreBoard(board, aiIdx) {
+  const oppIdx = 1 - aiIdx;
+  let score = 0;
+
+  function scoreWindow(w) {
+    const ai    = w.filter(c => c === aiIdx).length;
+    const opp   = w.filter(c => c === oppIdx).length;
+    const empty = w.filter(c => c === null).length;
+    if (ai  === 3 && empty === 1) return 5;
+    if (ai  === 2 && empty === 2) return 2;
+    if (opp === 3 && empty === 1) return -4;
+    return 0;
+  }
+
+  for (let r = 0; r < ROWS; r++)
+    if (board[r][3] === aiIdx) score += 3;
+
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      score += scoreWindow([board[r][c], board[r][c+1], board[r][c+2], board[r][c+3]]);
+
+  for (let c = 0; c < COLS; c++)
+    for (let r = 0; r <= ROWS - 4; r++)
+      score += scoreWindow([board[r][c], board[r+1][c], board[r+2][c], board[r+3][c]]);
+
+  for (let r = 0; r <= ROWS - 4; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      score += scoreWindow([board[r][c], board[r+1][c+1], board[r+2][c+2], board[r+3][c+3]]);
+
+  for (let r = 3; r < ROWS; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      score += scoreWindow([board[r][c], board[r-1][c+1], board[r-2][c+2], board[r-3][c+3]]);
+
+  return score;
+}
 
 // ── Network (PeerJS) ─────────────────────────────────────────
 const Network = {
@@ -210,14 +292,17 @@ function selectMode(mode) {
     showChoiceSection();
     showScreen('online-setup');
   } else {
-    const p2Row = document.getElementById('name-p2-row');
+    const p2Row   = document.getElementById('name-p2-row');
     const aiLabel = document.getElementById('ai-player-label');
+    const diffRow = document.getElementById('difficulty-row');
     if (mode === 'ai') {
       p2Row.classList.add('hidden');
       aiLabel.classList.remove('hidden');
+      diffRow.classList.remove('hidden');
     } else {
       p2Row.classList.remove('hidden');
       aiLabel.classList.add('hidden');
+      diffRow.classList.add('hidden');
     }
     showScreen('names');
   }
@@ -330,9 +415,17 @@ function processMove(col) {
   }
 }
 
+function setDifficulty(diff) {
+  State.aiDifficulty = diff;
+  localStorage.setItem('inrow-ai-difficulty', diff);
+  document.querySelectorAll('.diff-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.diff === diff)
+  );
+}
+
 function scheduleAIMove() {
   setTimeout(() => {
-    const col = AI.getMove(State.board, 1);
+    const col = AI.getMove(State.board, 1, State.aiDifficulty);
     processMove(col);
   }, 580);
 }
@@ -511,12 +604,14 @@ fetch('version.json')
 
 // ── Saved names ───────────────────────────────────────────────
 (function loadSavedNames() {
-  const my = localStorage.getItem('inrow-my-name') ?? '';
-  const p2 = localStorage.getItem('inrow-p2-name') ?? '';
+  const my   = localStorage.getItem('inrow-my-name') ?? '';
+  const p2   = localStorage.getItem('inrow-p2-name') ?? '';
+  const diff = localStorage.getItem('inrow-ai-difficulty') ?? 'medium';
   document.getElementById('name-p1').value = my;
   document.getElementById('name-p2').value = p2;
   document.getElementById('name-online-host').value = my;
   document.getElementById('name-online-join').value = my;
+  setDifficulty(diff);
 })();
 
 // ── PWA ───────────────────────────────────────────────────────

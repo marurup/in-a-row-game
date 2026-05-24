@@ -202,6 +202,41 @@ body {
 }
 .ai-name-label { font-style: italic; }
 
+/* ── Difficulty selector ─────────────────────────────────────── */
+.difficulty-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.diff-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.diff-btn {
+  flex: 1;
+  padding: 9px 4px;
+  border: 2px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: border-color .15s, background .15s, color .15s;
+}
+
+.diff-btn:hover { border-color: #aab; }
+
+.diff-btn.active {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #fff;
+}
+
 /* ── Online Setup ─────────────────────────────────────────────── */
 .online-section {
   display: flex;

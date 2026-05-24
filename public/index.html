@@ -63,6 +63,15 @@
           <span class="ai-name-label">Computer</span>
         </div>
       </div>
+      <div class="difficulty-row hidden" id="difficulty-row">
+        <p class="section-label">Sværhedsgrad</p>
+        <div class="diff-buttons">
+          <button class="diff-btn" data-diff="easy"   onclick="setDifficulty('easy')">Let</button>
+          <button class="diff-btn" data-diff="medium" onclick="setDifficulty('medium')">Mellem</button>
+          <button class="diff-btn" data-diff="hard"   onclick="setDifficulty('hard')">Svær</button>
+          <button class="diff-btn" data-diff="expert" onclick="setDifficulty('expert')">Expert</button>
+        </div>
+      </div>
       <div class="btn-row">
         <button class="btn btn-outline" onclick="showScreen('menu')">Tilbage</button>
         <button class="btn btn-primary" onclick="startLocalGame()">Start spil</button>

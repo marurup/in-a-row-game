@@ -226,10 +226,14 @@ function selectMode(mode) {
 }
 
 function startLocalGame() {
-  const name1 = document.getElementById('name-p1').value.trim() || 'Spiller 1';
-  const name2 = State.mode === 'ai'
-    ? 'Computer'
-    : (document.getElementById('name-p2').value.trim() || 'Spiller 2');
+  const raw1 = document.getElementById('name-p1').value.trim();
+  const raw2 = document.getElementById('name-p2').value.trim();
+  const name1 = raw1 || 'Spiller 1';
+  const name2 = State.mode === 'ai' ? 'Computer' : (raw2 || 'Spiller 2');
+
+  localStorage.setItem('inrow-my-name', raw1);
+  if (State.mode !== 'ai') localStorage.setItem('inrow-p2-name', raw2);
+
   State.players[0].name = name1;
   State.players[1].name = name2;
   initGame();
@@ -246,18 +250,20 @@ function showHostSection()   { showSection('online-section-host'); }
 function showJoinSection()   { showSection('online-section-join'); }
 
 function createRoom() {
-  const name = document.getElementById('name-online-host').value.trim() || 'Spiller 1';
-  Network.host(name);
+  const raw = document.getElementById('name-online-host').value.trim();
+  localStorage.setItem('inrow-my-name', raw);
+  Network.host(raw || 'Spiller 1');
 }
 
 function joinOnlineGame() {
-  const name = document.getElementById('name-online-join').value.trim() || 'Spiller 2';
+  const raw = document.getElementById('name-online-join').value.trim();
   const code = document.getElementById('room-code-input').value.trim().toUpperCase();
   if (code.length < 4) {
     alert('Indtast en gyldig rum-kode');
     return;
   }
-  Network.join(name, code);
+  localStorage.setItem('inrow-my-name', raw);
+  Network.join(raw || 'Spiller 2', code);
 }
 
 function cancelOnline() {
@@ -462,6 +468,25 @@ function hidePreview() {
     c.style.removeProperty('--preview-color');
   });
 }
+
+// ── Version ───────────────────────────────────────────────────
+fetch('version.json')
+  .then(r => r.json())
+  .then(v => {
+    const el = document.getElementById('version-info');
+    if (el) el.textContent = v.version + ' · ' + v.date;
+  })
+  .catch(() => {});
+
+// ── Saved names ───────────────────────────────────────────────
+(function loadSavedNames() {
+  const my = localStorage.getItem('inrow-my-name') ?? '';
+  const p2 = localStorage.getItem('inrow-p2-name') ?? '';
+  document.getElementById('name-p1').value = my;
+  document.getElementById('name-p2').value = p2;
+  document.getElementById('name-online-host').value = my;
+  document.getElementById('name-online-join').value = my;
+})();
 
 // ── PWA ───────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {

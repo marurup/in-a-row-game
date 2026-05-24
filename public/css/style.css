@@ -265,6 +265,17 @@ body {
 .winner-chip { font-size: 5rem; line-height: 1; }
 .gameover-sub { color: var(--text-muted); font-size: 0.95rem; }
 
+/* ── Version info ─────────────────────────────────────────────── */
+.version-info {
+  font-size: 0.7rem;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  color: var(--text-muted);
+  opacity: 0.45;
+  letter-spacing: 0.03em;
+  margin-top: 8px;
+  min-height: 1em;
+}
+
 /* ── Utilities ────────────────────────────────────────────────── */
 .hidden { display: none !important; }
 

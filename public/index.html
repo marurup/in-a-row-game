@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1e3a5f">
+  <title>4 på stribe</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+</head>
+<body>
+
+  <!-- MENU -->
+  <div id="screen-menu" class="screen active">
+    <div class="screen-content">
+      <h1 class="game-title">
+        <span class="c1">4</span> på <span class="c2">stribe</span>
+      </h1>
+      <div class="menu-buttons">
+        <button class="btn btn-primary" onclick="selectMode('local')">Lokal 2-spiller</button>
+        <button class="btn btn-secondary" onclick="selectMode('ai')">Mod computer</button>
+        <button class="btn btn-outline" onclick="selectMode('online')">Online multiplayer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVNE (local + ai) -->
+  <div id="screen-names" class="screen">
+    <div class="screen-content">
+      <h2>Spillernavne</h2>
+      <div class="name-inputs">
+        <div class="player-input">
+          <span class="dot p1-dot">●</span>
+          <input type="text" id="name-p1" placeholder="Spiller 1" maxlength="16" autocomplete="off">
+        </div>
+        <div class="player-input" id="name-p2-row">
+          <span class="dot p2-dot">●</span>
+          <input type="text" id="name-p2" placeholder="Spiller 2" maxlength="16" autocomplete="off">
+        </div>
+        <div class="player-ai-label hidden" id="ai-player-label">
+          <span class="dot p2-dot">●</span>
+          <span class="ai-name-label">Computer</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="showScreen('menu')">Tilbage</button>
+        <button class="btn btn-primary" onclick="startLocalGame()">Start spil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONLINE SETUP -->
+  <div id="screen-online-setup" class="screen">
+    <div class="screen-content">
+      <h2>Online spil</h2>
+
+      <div id="online-section-choice" class="online-section">
+        <button class="btn btn-primary" onclick="showHostSection()">Opret spil</button>
+        <button class="btn btn-outline" onclick="showJoinSection()">Deltag i spil</button>
+        <button class="btn btn-sm btn-ghost" onclick="showScreen('menu')">← Tilbage</button>
+      </div>
+
+      <div id="online-section-host" class="online-section hidden">
+        <p class="section-label">Dit navn</p>
+        <div class="player-input">
+          <span class="dot p1-dot">●</span>
+          <input type="text" id="name-online-host" placeholder="Spiller 1" maxlength="16" autocomplete="off">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="showChoiceSection()">Tilbage</button>
+          <button class="btn btn-primary" onclick="createRoom()">Opret rum</button>
+        </div>
+      </div>
+
+      <div id="online-section-join" class="online-section hidden">
+        <p class="section-label">Dit navn</p>
+        <div class="player-input">
+          <span class="dot p2-dot">●</span>
+          <input type="text" id="name-online-join" placeholder="Spiller 2" maxlength="16" autocomplete="off">
+        </div>
+        <p class="section-label">Rum-kode</p>
+        <div class="player-input">
+          <input type="text" id="room-code-input" placeholder="ABC123" maxlength="8"
+                 style="letter-spacing:0.15em;text-transform:uppercase;font-weight:700">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="showChoiceSection()">Tilbage</button>
+          <button class="btn btn-primary" onclick="joinOnlineGame()">Forbind</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENTER -->
+  <div id="screen-waiting" class="screen">
+    <div class="screen-content">
+      <h2>Venter på modstander…</h2>
+      <div class="room-code-box">
+        <p class="room-code-label">Del denne kode:</p>
+        <div class="room-code" id="room-code-display">------</div>
+        <button class="btn btn-sm btn-outline" onclick="copyRoomCode()">Kopiér</button>
+      </div>
+      <div class="waiting-dots">● ● ●</div>
+      <button class="btn btn-sm btn-ghost" onclick="cancelOnline()">Annuller</button>
+    </div>
+  </div>
+
+  <!-- SPIL -->
+  <div id="screen-game" class="screen">
+    <div class="screen-content game-screen-content">
+      <div class="turn-indicator" id="turn-indicator">
+        <span class="dot" id="turn-chip">●</span>
+        <span id="turn-text">Spiller 1s tur</span>
+      </div>
+      <div class="board-wrapper">
+        <div class="col-arrows" id="col-arrows"></div>
+        <div class="board" id="board"></div>
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="confirmQuit()">Afslut spil</button>
+    </div>
+  </div>
+
+  <!-- SPIL SLUT -->
+  <div id="screen-gameover" class="screen">
+    <div class="screen-content">
+      <div class="gameover-result">
+        <div class="winner-chip" id="winner-chip">●</div>
+        <h2 id="gameover-title">Spiller 1 vinder!</h2>
+        <p id="gameover-sub" class="gameover-sub"></p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="showScreen('menu')">Menu</button>
+        <button class="btn btn-primary" id="btn-play-again" onclick="playAgain()">Spil igen</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

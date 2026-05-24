@@ -43,6 +43,78 @@ body {
 
 .game-screen-content { gap: 14px; padding-top: 20px; }
 
+/* ── Menu screen ─────────────────────────────────────────────── */
+#screen-menu {
+  overflow: hidden;
+  background: linear-gradient(155deg, #f5f7fa 0%, #e8eef7 100%);
+}
+
+/* Subtle coloured glow in corners hinting at red/yellow pieces */
+#screen-menu::before,
+#screen-menu::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+#screen-menu::before {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(231,76,60,.10) 0%, transparent 65%);
+  top: -120px; right: -100px;
+}
+#screen-menu::after {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(241,196,15,.12) 0%, transparent 65%);
+  bottom: -90px; left: -90px;
+}
+
+#screen-menu .screen-content { gap: 20px; }
+
+/* ── Menu hero ───────────────────────────────────────────────── */
+.menu-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+/* ── Decorative board ────────────────────────────────────────── */
+.hero-board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  background: var(--board-bg);
+  border-radius: 12px;
+  padding: 10px;
+  width: 100%;
+  max-width: 280px;
+  box-shadow: 0 6px 28px rgba(0,0,0,.30);
+}
+
+.hero-board > div {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--cell-empty);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.45);
+}
+
+.hero-board > div.r { background: var(--p1); box-shadow: none; }
+.hero-board > div.y { background: var(--p2); box-shadow: none; }
+.hero-board > div.w {
+  box-shadow: 0 0 0 3px #fff, 0 0 12px rgba(255,255,255,.9);
+  animation: winpulse 0.9s ease-in-out infinite alternate;
+}
+
+/* ── Tagline ─────────────────────────────────────────────────── */
+.tagline {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
 /* ── Title ───────────────────────────────────────────────────── */
 .game-title {
   font-size: clamp(2rem, 8vw, 3rem);

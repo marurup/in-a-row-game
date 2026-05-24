@@ -14,9 +14,25 @@
   <!-- MENU -->
   <div id="screen-menu" class="screen active">
     <div class="screen-content">
-      <h1 class="game-title">
-        <span class="c1">4</span> på <span class="c2">stribe</span>
-      </h1>
+
+      <div class="menu-hero">
+        <h1 class="game-title">
+          <span class="c1">4</span> på <span class="c2">stribe</span>
+        </h1>
+
+        <!-- Decorative board: red wins diagonally (5,1)→(4,2)→(3,3)→(2,4) -->
+        <div class="hero-board" aria-hidden="true">
+          <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+          <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+          <div></div><div></div><div></div><div></div><div class="r w"></div><div></div><div></div>
+          <div></div><div></div><div></div><div class="r w"></div><div class="y"></div><div></div><div></div>
+          <div></div><div></div><div class="r w"></div><div class="y"></div><div class="y"></div><div></div><div></div>
+          <div></div><div class="r w"></div><div class="y"></div><div class="r"></div><div class="r"></div><div class="y"></div><div></div>
+        </div>
+
+        <p class="tagline">Lokal &nbsp;·&nbsp; Computer &nbsp;·&nbsp; Online</p>
+      </div>
+
       <div class="menu-buttons">
         <button class="btn btn-primary" onclick="selectMode('local')">Lokal 2-spiller</button>
         <button class="btn btn-secondary" onclick="selectMode('ai')">Mod computer</button>

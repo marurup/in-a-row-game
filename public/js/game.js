@@ -219,8 +219,6 @@ function selectMode(mode) {
       p2Row.classList.remove('hidden');
       aiLabel.classList.add('hidden');
     }
-    document.getElementById('name-p1').value = '';
-    document.getElementById('name-p2').value = '';
     showScreen('names');
   }
 }
@@ -467,6 +465,39 @@ function hidePreview() {
     c.classList.remove('preview');
     c.style.removeProperty('--preview-color');
   });
+}
+
+// ── PWA Install ───────────────────────────────────────────────
+let deferredInstallPrompt = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                     || window.navigator.standalone === true;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('btn-install').classList.remove('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  document.getElementById('btn-install').classList.add('hidden');
+});
+
+if (isIOS && !isStandalone) {
+  document.getElementById('btn-install').classList.remove('hidden');
+}
+
+function installApp() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(() => {
+      deferredInstallPrompt = null;
+      document.getElementById('btn-install').classList.add('hidden');
+    });
+  } else if (isIOS) {
+    alert('Tryk på Del-ikonet (firkant med pil op) og vælg "Tilføj til hjemmeskærm".');
+  }
 }
 
 // ── Version ───────────────────────────────────────────────────
